@@ -1,0 +1,62 @@
+# "org" ensures this Service is used with the correct Serverless Framework Access Key.
+org: riofrio
+# "service" is the name of this project. This will also be added to your AWS resource names.
+service: steeven
+
+provider:
+  name: aws
+  runtime: nodejs20.x
+  iamRoleStatements:
+    - Effect: Allow
+      Action: 
+        - dynamodb:*
+      Resource: 
+        - arn:aws:dynamodb:us-east-1:688567275523:table/BooksRiofrio
+S
+functions:
+  createBook:
+    handler: src/addBook_sr.addBook_sr  
+    events:
+      - httpApi:
+          path: /books  
+          method: post
+
+  getBooks:
+    handler: src/getBook_sr.getBooks_sr  
+    events:
+      - httpApi:
+          path: /books  
+          method: get
+
+  updateBook:
+    handler: src/updateBook_sr.updateBook_sr  
+    events:
+      - httpApi:
+          path: /books/{BookID}  
+          method: put
+
+  deleteBook:
+    handler: src/deleteBook_sr.deleteBook_sr  
+    events:
+      - httpApi:
+          path: /books/{BookID}  
+          method: delete
+          
+plugins:
+  - serverless-offline
+
+resources:
+  Resources:
+    BooksTable:
+      Type: AWS::DynamoDB::Table
+      Properties:
+        TableName: BooksRiofrio
+        AttributeDefinitions:
+          - AttributeName: BookID
+            AttributeType: S
+        KeySchema:
+          - AttributeName: BookID
+            KeyType: HASH
+        ProvisionedThroughput:
+          ReadCapacityUnits: 5
+          WriteCapacityUnits: 5
